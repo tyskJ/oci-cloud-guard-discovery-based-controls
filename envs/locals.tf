@@ -16,4 +16,8 @@ locals {
     for r in data.oci_cloud_guard_detector_recipes.managed.detector_recipe_collection[0].items :
     r.source_detector_recipe_id => r.id
   }
+  responder_recipes_map = {
+    for r in data.oci_cloud_guard_responder_recipes.managed.responder_recipe_collection[0].items :
+    r.source_responder_recipe_id => r.id
+  }
 }
