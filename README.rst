@@ -89,6 +89,7 @@ OCI Cloud Guard で実現する発見的統制
 
   cat <<EOF > oci.auto.tfvars
   tenancy_ocid = "テナンシOCID(=ルートコンパートメントOCID)"
+  subscription_email = "Notifications用メールアドレス"
   EOF
 
 
