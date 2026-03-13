@@ -60,7 +60,7 @@ resource "oci_cloud_guard_responder_recipe" "this" {
   responder_rules {
     responder_rule_id = "MAKE_BUCKET_PRIVATE"
     details {
-      is_enabled = false
+      is_enabled = true
     }
   }
   responder_rules {
