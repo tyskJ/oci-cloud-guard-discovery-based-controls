@@ -133,10 +133,45 @@ OCI Cloud Guard で実現する発見的統制
 ---------------------------------------------------------------------
 .. code-block:: bash
 
+  oci iam policy create \
+  --compartment-id ルートコンパートメントOCID \
+  --name cloudguard-read-tenancies-policy \
+  --description "Allow Cloud Guard service to read tenancies" \
+  --statements '[
+    "Allow service cloudguard to read tenancies in tenancy"
+  ]' \
+  --profile ADMIN \
+  --auth security_token
+
+.. note::
+
+  * ルートコンパートメントOCIDはご自身の環境の値に置き換えてください
+  * 有効化及び無効化時に、Cloud Guard にテナンシを読み取る権限がないとエラーになるためポリシーを作成している
+
+.. code-block:: bash
+
   oci cloud-guard configuration update \
   --compartment-id ルートコンパートメントOCID \
   --reporting-region ap-tokyo-1 \
   --status DISABLED \
+  --profile ADMIN \
+  --auth security_token
+
+.. note::
+
+  * ルートコンパートメントOCIDはご自身の環境の値に置き換えてください
+
+.. code-block:: bash
+
+  oci iam policy delete \
+  --policy-id $(oci iam policy list \
+    --compartment-id ルートコンパートメントOCID \
+    --name cloudguard-read-tenancies-policy \
+    --query "data[0].id" \
+    --raw-output \
+    --profile ADMIN \
+    --auth security_token) \
+  --force \
   --profile ADMIN \
   --auth security_token
 
