@@ -102,5 +102,23 @@ resource "oci_cloud_guard_target" "root" {
   }
   target_responder_recipes {
     responder_recipe_id = oci_cloud_guard_responder_recipe.this.id
+    responder_rules {
+      responder_rule_id = "MAKE_BUCKET_PRIVATE"
+      details {
+        mode = "AUTOACTION"
+        configurations {
+          config_key = "isPostRemediateNotifyEnabled"
+          name       = "true"
+          value      = "true"
+        }
+        condition = jsonencode({
+          kind      = "SIMPLE"
+          parameter = "region"
+          operator  = "IN"
+          valueType = "CUSTOM"
+          value     = "ap-tokyo-1"
+        })
+      }
+    }
   }
 }

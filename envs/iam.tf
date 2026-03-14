@@ -34,5 +34,6 @@ resource "oci_identity_policy" "cloud_guard_policy" {
     "Endorse any-user to { WLP_METRICS_CREATE } in any-tenancy where all { request.principal.id = target.agent.id, request.principal.type = 'workloadprotectionagent' }",
     "Endorse any-user to { WLP_ADHOC_QUERY_READ } in any-tenancy where all { request.principal.id = target.agent.id, request.principal.type = 'workloadprotectionagent' }",
     "Endorse any-user to { WLP_ADHOC_RESULTS_CREATE } in any-tenancy where all { request.principal.id = target.agent.id, request.principal.type = 'workloadprotectionagent'}",
+    "Allow service cloudguard to manage buckets in tenancy",
   ]
 }
