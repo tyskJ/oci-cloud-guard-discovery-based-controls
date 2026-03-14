@@ -3,7 +3,7 @@
 =====================================================================
 OCI Cloud Guard で実現する発見的統制
 =====================================================================
-* `詳細 <>`_
+* `詳細 <https://qiita.com/tyskJ/items/1f0ca01a04d0a13b40e0>`_
 
 =====================================================================
 構成図
@@ -129,6 +129,20 @@ OCI Cloud Guard で実現する発見的統制
   --force --empty \
   --profile ADMIN --auth security_token
 
+3. *Cloud Guard* 無効化
+---------------------------------------------------------------------
+.. code-block:: bash
+
+  oci cloud-guard configuration update \
+  --compartment-id ルートコンパートメントOCID \
+  --reporting-region ap-tokyo-1 \
+  --status DISABLED \
+  --profile ADMIN \
+  --auth security_token
+
+.. note::
+
+  * ルートコンパートメントOCIDはご自身の環境の値に置き換えてください
 
 番外編
 =====================================================================
