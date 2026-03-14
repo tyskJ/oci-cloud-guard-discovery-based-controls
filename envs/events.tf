@@ -6,8 +6,11 @@ resource "oci_events_rule" "this" {
   display_name   = "cloud-guard-event-root"
   is_enabled     = true
   condition = jsonencode({
-    eventType = ["com.oraclecloud.cloudguard.problemdetected"]
-    data      = {}
+    eventType = [
+      "com.oraclecloud.cloudguard.problemdetected",
+      "com.oraclecloud.cloudguard.problemremediated"
+    ]
+    data = {}
   })
   actions {
     actions {
