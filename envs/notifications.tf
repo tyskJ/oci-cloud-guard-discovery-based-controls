@@ -9,6 +9,7 @@ resource "oci_ons_notification_topic" "this" {
 /************************************************************
 Subscriptions
 ************************************************************/
+# トピックと同一コンパートメントにする必要あり
 resource "oci_ons_subscription" "this" {
   compartment_id = var.tenancy_ocid
   topic_id       = oci_ons_notification_topic.this.topic_id
