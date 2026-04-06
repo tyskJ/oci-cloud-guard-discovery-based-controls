@@ -48,8 +48,18 @@ OCI Cloud Guard で実現する発見的統制
 ---------------------------------------------------------------------
 .. code-block:: bash
 
+  TENANCY_ID=$(oci iam compartment list \
+    --lifecycle-state ACTIVE \
+    --include-root \
+    --profile ADMIN \
+    --auth security_token \
+    --query "data[?\"compartment-id\"==null].id | [0]" \
+    --raw-output)
+
+.. code-block:: bash
+
   oci os bucket create \
-  --compartment-id <ルートコンパートメントOCID> \
+  --compartment-id "${TENANCY_ID}" \
   --name terraform-working \
   --profile ADMIN --auth security_token
 
@@ -69,9 +79,28 @@ OCI Cloud Guard で実現する発見的統制
 
 .. code-block:: bash
 
+  TENANCY_ID=$(oci iam compartment list \
+    --lifecycle-state ACTIVE \
+    --include-root \
+    --profile ADMIN \
+    --auth security_token \
+    --query "data[?\"compartment-id\"==null].id | [0]" \
+    --raw-output)
+
+.. code-block:: bash
+
+  NAMESPACE=$(oci os ns get \
+    --compartment-id "${TENANCY_ID}" \
+    --profile ADMIN \
+    --auth security_token \
+    --query "data" \
+    --raw-output)
+
+.. code-block:: bash
+
   cat <<EOF > config.oci.tfbackend
   bucket = "terraform-working"
-  namespace = "テナンシに一意に付与されたネームスペース"
+  namespace = "${NAMESPACE}"
   key = "oci-cloud-guard-discovery-based-controls/terraform.tfstate"
   auth = "SecurityToken"
   config_file_profile = "ADMIN"
@@ -87,8 +116,18 @@ OCI Cloud Guard で実現する発見的統制
 
 .. code-block:: bash
 
+  TENANCY_ID=$(oci iam compartment list \
+    --lifecycle-state ACTIVE \
+    --include-root \
+    --profile ADMIN \
+    --auth security_token \
+    --query "data[?\"compartment-id\"==null].id | [0]" \
+    --raw-output)
+
+.. code-block:: bash
+
   cat <<EOF > oci.auto.tfvars
-  tenancy_ocid = "テナンシOCID(=ルートコンパートメントOCID)"
+  tenancy_ocid = "${TENANCY_ID}"
   namespace = "テナンシに一意に付与されたネームスペース"
   subscription_email = "Notifications用メールアドレス"
   EOF
@@ -133,8 +172,22 @@ OCI Cloud Guard で実現する発見的統制
 ---------------------------------------------------------------------
 .. code-block:: bash
 
+  TENANCY_ID=$(oci iam compartment list \
+    --lifecycle-state ACTIVE \
+    --include-root \
+    --profile ADMIN \
+    --auth security_token \
+    --query "data[?\"compartment-id\"==null].id | [0]" \
+    --raw-output)
+
+.. note::
+
+  * 有効化及び無効化時に、Cloud Guard にテナンシを読み取る権限がないとエラーになるためポリシーを作成します
+
+.. code-block:: bash
+
   oci iam policy create \
-  --compartment-id ルートコンパートメントOCID \
+  --compartment-id "${TENANCY_ID}" \
   --name cloudguard-read-tenancies-policy \
   --description "Allow Cloud Guard service to read tenancies" \
   --statements '[
@@ -143,29 +196,20 @@ OCI Cloud Guard で実現する発見的統制
   --profile ADMIN \
   --auth security_token
 
-.. note::
-
-  * ルートコンパートメントOCIDはご自身の環境の値に置き換えてください
-  * 有効化及び無効化時に、Cloud Guard にテナンシを読み取る権限がないとエラーになるためポリシーを作成している
-
 .. code-block:: bash
 
   oci cloud-guard configuration update \
-  --compartment-id ルートコンパートメントOCID \
+  --compartment-id "${TENANCY_ID}" \
   --reporting-region ap-tokyo-1 \
   --status DISABLED \
   --profile ADMIN \
   --auth security_token
 
-.. note::
-
-  * ルートコンパートメントOCIDはご自身の環境の値に置き換えてください
-
 .. code-block:: bash
 
   oci iam policy delete \
   --policy-id $(oci iam policy list \
-    --compartment-id ルートコンパートメントOCID \
+    --compartment-id "${TENANCY_ID}" \
     --name cloudguard-read-tenancies-policy \
     --query "data[0].id" \
     --raw-output \
@@ -175,10 +219,6 @@ OCI Cloud Guard で実現する発見的統制
   --profile ADMIN \
   --auth security_token
 
-.. note::
-
-  * ルートコンパートメントOCIDはご自身の環境の値に置き換えてください
-
 番外編
 =====================================================================
 コンパートメント削除失敗
@@ -187,16 +227,22 @@ OCI Cloud Guard で実現する発見的統制
 * その場合、以下コマンドを実行し存在するリソース一覧を確認し削除してください
 
 .. code-block:: bash
+  
+  COMPARTMENT_NAME="oci-cloud-guard-discovery-based-controls"
+  COMPARTMENT_ID=$(oci iam compartment list \
+    --lifecycle-state ACTIVE \
+    --profile ADMIN \
+    --auth security_token \
+    --query "data[?name=='${COMPARTMENT_NAME}'].id | [0]" \
+    --raw-output)
+
+.. code-block:: bash
 
   oci search resource structured-search \
-  --query-text "query all resources where compartmentId = 'コンパートメントOCID'" \
+  --query-text "query all resources where compartmentId = '${COMPARTMENT_ID}'" \
   --profile ADMIN \
   --auth security_token \
   --query "data.items[].{identifier:identifier, resource_type:\"resource-type\"}"
-
-.. note::
-
-  * コンパートメントOCIDは、適宜調査対象の値に置き換えてください
 
 参考資料
 =====================================================================
